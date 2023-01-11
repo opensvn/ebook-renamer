@@ -46,7 +46,7 @@ fn main() {
         .filter(|e| !e.file_type().is_dir()) {
         let name = String::from(entry.file_name().to_string_lossy());
         for publisher in &publishers {
-            if name.clone().starts_with(publisher) {
+            if name.starts_with(publisher) {
                 let mut new_name = name.replace(publisher, "");
                 let index = new_name.rfind(".").unwrap_or_else(|| {
                     panic!("Can not find the right most dot")
