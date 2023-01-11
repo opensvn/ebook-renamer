@@ -1,4 +1,5 @@
 use std::fs;
+
 use walkdir::WalkDir;
 
 fn main() {
@@ -47,24 +48,18 @@ fn main() {
         for publisher in &publishers {
             if name.clone().starts_with(publisher) {
                 let mut new_name = name.replace(publisher, "");
-                let index = new_name.rfind(".");
-                match index {
-                    Some(i) => {
-                        new_name.insert_str(i + 1, publisher);
-                        match entry.path().parent() {
-                            Some(p) => {
-                                let result = fs::rename(entry.path(), p.join(new_name));
-                                match result {
-                                    Err(e) => println!("{}", e),
-                                    _ => {}
-                                }
-                                break;
-                            }
-                            None => {}
-                        }
-                    }
-                    None => {}
-                }
+                let index = new_name.rfind(".").unwrap_or_else(|| {
+                    panic!("Can not find the right most dot")
+                });
+                new_name.insert_str(index + 1, publisher);
+
+                let parent = entry.path().parent().unwrap_or_else(|| {
+                    panic!("Get parent directory error")
+                });
+                fs::rename(entry.path(), parent.join(new_name)).unwrap_or_else(|error| {
+                    panic!("Problem renaming the file: {:?}", error);
+                });
+                break;
             }
         }
     }
